@@ -24,8 +24,8 @@ const SUPABASE_URL='https://vnxvbrlztdlbpfwydzgj.supabase.co';
 const SUPABASE_ANON_KEY='sb_publishable_hqyuGb4LiX4hV2E7HI-ADQ_7RfbZjw9';
 </script>
 <header class="bg-white sticky top-0 z-40 border-b">
-<div class="max-w- mx-auto px-4 py-3 flex items-center justify-between gap-3">
-<div class="flex items-center gap-3">
+<div class="max-w- mx-auto px-4 py-3 flex items-center justify-between gap-2">
+<div class="flex items-center gap-2">
 <div class="w-10 h-10 bg-zinc-900 rounded-xl flex items-center justify-center text-white font-black">س</div>
 <div class="leading-tight"><div class="font-black text-">سوق الأسبوع</div><div class="text- text-gray-500">بيع واشتري بأمان • شام كاش 💳</div></div>
 </div>
@@ -42,7 +42,7 @@ const SUPABASE_ANON_KEY='sb_publishable_hqyuGb4LiX4hV2E7HI-ADQ_7RfbZjw9';
 </header>
 <div class="bg-zinc-900 text-white text- py-2 overflow-hidden relative">
 <div class="flex gap-8 whitespace-nowrap marquee w-max px-4">
-<span>🔥 أحمد من حلب اشترى بطارية بضمان</span><span>☀️ عرض طاقة شمسية 550 واط جديد</span><span>✅ تم توثيق 3 هويات اليوم</span><span>📱 آيفون 14 برو ماكس نظيف</span><span>🚗 كيا ريو 2018 للبدل</span>
+<span>🔥 أحمد من حلب اشترى بطارية بضمان</span><span>☀️ عرض طاقة شمسية 550 واط جديد</span><span>✅ تم توثيق 3 هويات اليوم</span><span>📱 آيفون 14 برو ماكس نظيف</span><span>🚗 كيا ريو 2018 للبدل</span><span>💼 مطلوب عامل مطعم براتب منيح</span>
 </div>
 <span class="absolute left-2 top-1/2 -translate-y-1/2 bg-amber-400 text-zinc-900 px-2.5 py-0.5 rounded-full text- font-black">مباشر</span>
 </div>
@@ -80,14 +80,14 @@ const SUPABASE_ANON_KEY='sb_publishable_hqyuGb4LiX4hV2E7HI-ADQ_7RfbZjw9';
 </div>
 </div>
 </div>
-<main class="max-w- mx-auto px-4 py-5">
-<div class="flex justify-between items-center mb-4"><button onclick="clearFilters()" class="bg-white border px-3 py-1.5 rounded-full text-xs font-bold">مسح الفلتر ✕</button><span id="count" class="text-xs font-bold text-emerald-600"></span></div>
-<div id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+<main class="max-w- mx-auto px-3 py-3">
+<div class="flex justify-between items-center mb-3"><button onclick="clearFilters()" class="bg-white border px-3 py-1.5 rounded-full text-xs font-bold">مسح الفلتر ✕</button><span id="count" class="text-xs font-bold text-emerald-600"></span></div>
+<div id="grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2"></div>
 <div id="empty" class="hidden text-center py-20"><div class="text-6xl">🛍️</div><p class="font-bold mt-3">لا يوجد إعلانات</p></div>
 </main>
 <div id="loginModal" class="hidden fixed inset-0 bg-black/60 z-[80] flex items-center justify-center p-4"><div class="bg-white rounded- w-full max-w-sm p-6"><h2 class="font-black text-xl mb-4">تسجيل دخول</h2><input id="loginPhone" placeholder="رقم 9639..." class="w-full border rounded-2xl px-4 py-3 mb-3"><input id="loginName" placeholder="اسمك" class="w-full border rounded-2xl px-4 py-3 mb-3"><button onclick="doLogin()" class="w-full bg-zinc-900 text-white py-3 rounded-2xl font-black">دخول</button><button onclick="document.getElementById('loginModal').classList.add('hidden')" class="w-full mt-2 bg-gray-100 py-3 rounded-2xl">إغلاق</button></div></div>
 <div id="modal" class="hidden fixed inset-0 bg-black/60 z-[70] flex items-center justify-center p-4"><div class="bg-white rounded- w-full max-w-lg max-h- overflow-auto p-6"><div class="flex justify-between mb-4"><h2 class="font-black text-xl">نشر إعلان</h2><button onclick="document.getElementById('modal').classList.add('hidden')" class="w-8 h-8 bg-gray-100 rounded-full">✕</button></div><form onsubmit="submitAd(event)" class="space-y-3"><input id="title" required placeholder="عنوان *" class="w-full border rounded-2xl px-4 py-3 text-sm"><textarea id="desc" required placeholder="الوصف..." class="w-full border rounded-2xl px-4 py-3 text-sm h-20"></textarea><div class="grid grid-cols-2 gap-2"><input id="price" type="number" required placeholder="السعر $" class="border rounded-2xl px-4 py-3 text-sm"><select id="cat" class="border rounded-2xl px-4 py-3 text-sm bg-white"><option>جوالات</option><option>سيارات</option><option>عقارات</option><option>أثاث</option><option>إلكترونيات</option><option>ملابس</option><option>طاقة</option><option>وظائف</option><option>ضمان</option><option>مستلزمات</option><option>أخرى</option></select></div><div class="grid grid-cols-2 gap-2"><select id="loc" class="border rounded-2xl px-4 py-3 text-sm bg-white"><option>دمشق</option><option>ريف دمشق</option><option>حلب</option><option>منبج</option><option>حمص</option><option>حماة</option><option>اللاذقية</option><option>طرطوس</option><option>إدلب</option><option>درعا</option><option>دير الزور</option><option>الرقة</option><option>الحسكة</option><option>السويداء</option><option>القنيطرة</option></select><select id="cond" class="border rounded-2xl px-4 py-3 text-sm bg-white"><option>جديد</option><option>مستعمل - ممتاز</option><option>مستعمل - جيد</option></select></div><input id="name" required placeholder="اسمك *" class="w-full border rounded-2xl px-4 py-3 text-sm"><input id="phone" required placeholder="واتساب 9639..." class="w-full border rounded-2xl px-4 py-3 text-sm"><div class="bg-amber-50 border border-amber-200 rounded-2xl p-4"><label class="flex gap-2 font-bold text-sm cursor-pointer"><input type="checkbox" id="shamEnabled" onchange="document.getElementById('shamBox').classList.toggle('hidden',!this.checked)"> 💳 أقبل شام كاش</label><div id="shamBox" class="hidden mt-3"><input id="shamWallet" placeholder="رقم محفظة شام كاش" class="w-full border rounded-xl px-4 py-3 text-sm bg-white"></div></div><input id="images" type="file" accept="image/*" multiple class="w-full border-dashed border rounded-2xl px-4 py-3 text-sm bg-gray-50"><div id="preview" class="flex gap-2 flex-wrap"></div><button id="submitBtn" class="w-full bg-zinc-900 text-white py-4 rounded-2xl font-black">نشر الآن ✅</button></form></div></div>
-<div id="detailModal" class="hidden fixed inset-0 bg-black/70 z-[90] flex items-center justify-center p-4"><div class="bg-white rounded- w-full max-w-lg max-h- overflow-auto"><div id="detailImgWrap" class="h-64 bg-gray-100 relative"></div><div class="p-5"><h3 id="detailTitle" class="font-black text-lg"></h3><p id="detailDesc" class="text-sm text-gray-600 mt-2"></p><p id="detailMeta" class="text-xs text-gray-400 mt-2"></p><div id="detailSham" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-4 mt-4"><p class="font-black text-sm">💳 الدفع عبر شام كاش</p><p class="text-xs mt-1">محفظة: <span id="detailWallet" class="font-mono font-bold"></span></p><button onclick="alert('تم التسجيل!')" class="w-full mt-3 bg-amber-400 py-2.5 rounded-xl font-black text-sm">تم التحويل ✅</button></div><div class="grid grid-cols-2 gap-2 mt-4"><a id="detailWA" target="_blank" class="bg-emerald-600 text-white text-center py-3 rounded-xl font-bold text-sm">💬 واتساب</a><button onclick="document.getElementById('detailModal').classList.add('hidden')" class="bg-gray-100 py-3 rounded-xl font-bold text-sm">إغلاق</button></div><div class="mt-6 border-t pt-4"><h4 class="font-black text-sm mb-3">💬 ردود الإعلان (<span id="replyCount">0</span>)</h4><div id="repliesList" class="space-y-2 max-h-48 overflow-auto"></div><div class="flex gap-2 mt-3"><input id="replyText" placeholder="اكتب رد..." class="flex-1 border rounded-full px-4 py-2 text-sm"><button onclick="addReply()" class="bg-zinc-900 text-white px-5 py-2 rounded-full text-sm font-bold">إرسال</button></div></div></div></div></div>
+<div id="detailModal" class="hidden fixed inset-0 bg-black/70 z-[90] flex items-center justify-center p-4"><div class="bg-white rounded- w-full max-w-lg max-h- overflow-auto"><div id="detailImgWrap" class="h- bg-gray-100 relative group"></div><div class="p-5"><h3 id="detailTitle" class="font-black text-lg"></h3><p id="detailDesc" class="text-sm text-gray-600 mt-2"></p><p id="detailMeta" class="text-xs text-gray-400 mt-2"></p><div id="detailSham" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-4 mt-4"><p class="font-black text-sm">💳 الدفع عبر شام كاش</p><p class="text-xs mt-1">محفظة: <span id="detailWallet" class="font-mono font-bold"></span></p><button onclick="alert('تم التسجيل!')" class="w-full mt-3 bg-amber-400 py-2.5 rounded-xl font-black text-sm">تم التحويل ✅</button></div><div class="grid grid-cols-2 gap-2 mt-4"><a id="detailWA" target="_blank" class="bg-emerald-600 text-white text-center py-3 rounded-xl font-bold text-sm">💬 واتساب</a><button onclick="document.getElementById('detailModal').classList.add('hidden')" class="bg-gray-100 py-3 rounded-xl font-bold text-sm">إغلاق</button></div><div class="mt-6 border-t pt-4"><h4 class="font-black text-sm mb-3">💬 ردود الإعلان (<span id="replyCount">0</span>)</h4><div id="repliesList" class="space-y-2 max-h-48 overflow-auto"></div><div class="flex gap-2 mt-3"><input id="replyText" placeholder="اكتب رد..." class="flex-1 border rounded-full px-4 py-2 text-sm"><button onclick="addReply()" class="bg-zinc-900 text-white px-5 py-2 rounded-full text-sm font-bold">إرسال</button></div></div></div></div></div>
 <script>
 let sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY),all=[],tempImages=[],city='',category='',currentDetail=null,currentUser=null;
 const saved=localStorage.getItem('souq_user');
@@ -121,75 +121,101 @@ const emoji=getEmoji(l.category);
 const bg=getBg(l.category);
 const views=Math.floor(Math.random()*300)+50;
 const isSham=l.sham_enabled||l.sham_wallet;
-return`<div onclick="openDetail('${l.id}')" class="card bg-white rounded- overflow-hidden border border-gray-100 cursor-pointer"><div class="h- ${bg} relative flex items-center justify-center">${l.images&&l.images[0]?`<img src="${l.images[0]}" class="absolute inset-0 w-full h-full object-cover">`:''}<div class="text- relative z-10">${emoji}</div><div class="absolute top-3 right-3 flex gap-1 z-20"><span class="bg-white px-2.5 py-1 rounded-full text- font-bold shadow">موثق ✅</span>${isSham?'<span class="bg-zinc-900 text-white px-2.5 py-1 rounded-full text- font-bold">بضمان</span>':''}</div><div class="absolute bottom-3 left-3 bg-zinc-900 text-white px-2.5 py-1 rounded-full text- font-bold z-20">👁️ ${views}</div></div><div class="p-3.5"><h3 class="font-bold text-">${l.title}</h3><div class="flex items-center gap-1 mt-2 text- text-gray-500"><span>📍</span><span>${l.location||''}</span></div><div class="flex justify-between items-end mt-3"><span class="text- text-gray-400">${new Date(l.created_at).toLocaleDateString('ar-SY')}</span><span class="font-black text-">${l.price?l.price+' $':''}</span></div></div></div>`;
+const img=l.images&&l.images[0]?l.images[0]:'';
+return`<div onclick="openDetail('${l.id}')" class="card bg-white rounded- border border-gray-100 cursor-pointer flex items-center gap-2.5 p-2 hover:bg-gray-50">
+<div class="w- h- rounded- ${bg} relative overflow-hidden flex-shrink-0 flex items-center justify-center">
+${img?`<img src="${img}" class="w-full h-full object-cover absolute inset-0">`:''}
+<div class="text- relative z-10">${img?'':emoji}</div>
+${isSham?'<div class="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white"></div>':''}
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-bold text-[12.5px] leading-[1.2] truncate pr-1">${l.title}</h3>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="text- text-gray-500 truncate">📍 ${l.location||''}</span>
+<span class="text- text-gray-300">•</span>
+<span class="text- text-gray-400">${new Date(l.created_at).toLocaleDateString('ar-SY')}</span>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1 flex-shrink-0 ml-1">
+<span class="font-black text-">${l.price?l.price+'$':''}</span>
+<span class="text- text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded-full">👁️ ${views}</span>
+</div>
+</div>`;
 }).join('');
 }
 async function openDetail(id){
-const l=all.find(x=>x.id===id);if(!l)return;
-currentDetail=l;
-document.getElementById('detailTitle').textContent=l.title;
-document.getElementById('detailDesc').textContent=l.description||'';
-document.getElementById('detailMeta').textContent=`${l.category||''} • ${l.location||''} • ${l.name||''}`;
-document.getElementById('detailImgWrap').innerHTML=l.images&&l.images[0]?`<img src="${l.images[0]}" class="w-full h-full object-cover">`:`<div class="w-full h-full flex items-center justify-center text-6xl ${getBg(l.category)}">${getEmoji(l.category)}</div>`;
-const sham=document.getElementById('detailSham');
-if(l.sham_enabled||l.sham_wallet){sham.classList.remove('hidden');document.getElementById('detailWallet').textContent=l.sham_wallet||l.phone;}else sham.classList.add('hidden');
-document.getElementById('detailWA').href=`https://wa.me/${(l.phone||'').replace(/[^0-9]/g,'')}`;
-document.getElementById('detailModal').classList.remove('hidden');
-loadReplies(id);
+ const l=all.find(x=>x.id===id); if(!l)return;
+ currentDetail=l;
+ document.getElementById('detailTitle').textContent=l.title;
+ document.getElementById('detailDesc').textContent=l.description||'';
+ document.getElementById('detailMeta').textContent=`${l.category||''} • ${l.location||''} • ${l.name||''} • ${l.phone||''}`;
+ let imgs=l.images||[];
+if(imgs.length>0){
+document.getElementById('detailImgWrap').innerHTML=`<img id="mainDetailImg" src="${imgs[0]}" class="w-full h-full object-contain bg-white cursor-zoom-in" onclick="window.open(this.src)">
+${imgs.length>1?`<div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/60 px-2.5 py-1.5 rounded-full">${imgs.map((im,i)=>`<button onclick="document.getElementById('mainDetailImg').src='${im}'" class="w-8 h-8 rounded-full overflow-hidden border-2 border-white/50 hover:border-white"><img src="${im}" class="w-full h-full object-cover"></button>`).join('')}</div>`:''}
+<div class="absolute top-3 left-3 bg-white/90 px-2.5 py-1 rounded-full text- font-bold">📷 ${imgs.length} صور</div>`;
+}else{
+document.getElementById('detailImgWrap').innerHTML=`<div class="w-full h-full flex flex-col items-center justify-center ${getBg(l.category)}"><div class="text-7xl">${getEmoji(l.category)}</div><div class="text-xs text-gray-500 mt-2">${l.category}</div></div>`;
+}
+ const sham=document.getElementById('detailSham');
+ if(l.sham_enabled||l.sham_wallet){sham.classList.remove('hidden');document.getElementById('detailWallet').textContent=l.sham_wallet||l.phone;}else sham.classList.add('hidden');
+ document.getElementById('detailWA').href=`https://wa.me/${(l.phone||'').replace(/[^0-9]/g,'')}`;
+ document.getElementById('detailModal').classList.remove('hidden');
+ loadReplies(id);
 }
 let replies=[];
 async function loadReplies(listingId){
-const key='replies_'+listingId;
-replies=JSON.parse(localStorage.getItem(key)||'[]');
-renderReplies();
+ const key='replies_'+listingId;
+ replies=JSON.parse(localStorage.getItem(key)||'[]');
+ renderReplies();
 }
 function renderReplies(){
-document.getElementById('replyCount').textContent=replies.length;
-document.getElementById('repliesList').innerHTML=replies.map(r=>`<div class="bg-gray-50 rounded-xl p-3"><div class="font-bold text-xs">${r.name}</div><div class="text-sm mt-1">${r.text}</div><div class="text- text-gray-400 mt-1">${r.time}</div></div>`).join('')||'<p class=text-xs text-gray-400>لا يوجد ردود بعد</p>';
+ document.getElementById('replyCount').textContent=replies.length;
+ document.getElementById('repliesList').innerHTML=replies.map(r=>`<div class="bg-gray-50 rounded-xl p-3"><div class="font-bold text-xs">${r.name}</div><div class="text-sm mt-1">${r.text}</div><div class="text- text-gray-400 mt-1">${r.time}</div></div>`).join('')||'<p class=text-xs text-gray-400>لا يوجد ردود بعد</p>';
 }
 function addReply(){
-const text=document.getElementById('replyText').value.trim();
-if(!text)return;
-if(!currentUser){openLogin();return;}
-const r={name:currentUser.name,text,time:new Date().toLocaleString('ar-SY')};
-replies.push(r);
-localStorage.setItem('replies_'+currentDetail.id,JSON.stringify(replies));
-document.getElementById('replyText').value='';
-renderReplies();
+ const text=document.getElementById('replyText').value.trim();
+ if(!text){return;}
+ if(!currentUser){openLogin();return;}
+ const r={name:currentUser.name,text,time:new Date().toLocaleString('ar-SY')};
+ replies.push(r);
+ localStorage.setItem('replies_'+currentDetail.id,JSON.stringify(replies));
+ document.getElementById('replyText').value='';
+ renderReplies();
 }
 document.getElementById('images').addEventListener('change',e=>{
-tempImages=[];const p=document.getElementById('preview');p.innerHTML='';
-[...e.target.files].slice(0,4).forEach(f=>{
-const r=new FileReader();
-r.onload=ev=>{tempImages.push(ev.target.result);p.innerHTML+=`<img src="${ev.target.result}" class="w-16 h-16 rounded-xl object-cover border">`;};
-r.readAsDataURL(f);
-});
+ tempImages=[];const p=document.getElementById('preview');p.innerHTML='';
+ [...e.target.files].slice(0,4).forEach(f=>{
+  const r=new FileReader();
+  r.onload=ev=>{tempImages.push(ev.target.result);p.innerHTML+=`<img src="${ev.target.result}" class="w-16 h-16 rounded-xl object-cover border">`;};
+  r.readAsDataURL(f);
+ });
 });
 async function submitAd(ev){
-ev.preventDefault();
-const btn=document.getElementById('submitBtn');btn.disabled=true;btn.textContent='جاري النشر...';
-let data={
-title:document.getElementById('title').value,
-description:document.getElementById('desc').value,
-price:parseInt(document.getElementById('price').value)||0,
-category:document.getElementById('cat').value,
-location:document.getElementById('loc').value,
-condition:document.getElementById('cond').value,
-name:document.getElementById('name').value,
-phone:document.getElementById('phone').value,
-images:tempImages,
-status:'active'
-};
-let fullData={...data,sham_enabled:document.getElementById('shamEnabled').checked,sham_wallet:document.getElementById('shamWallet').value};
-let {error}=await sb.from('listings').insert([fullData]);
-if(error && error.message.includes('sham_enabled')){
-const res2=await sb.from('listings').insert([data]);
-error=res2.error;
-}
-btn.disabled=false;btn.textContent='نشر الآن ✅';
-if(error){alert('خطأ: '+error.message);return;}
-document.getElementById('modal').classList.add('hidden');ev.target.reset();tempImages=[];document.getElementById('preview').innerHTML='';document.getElementById('shamBox').classList.add('hidden');
-load();
+ ev.preventDefault();
+ const btn=document.getElementById('submitBtn');btn.disabled=true;btn.textContent='جاري النشر...';
+ let data={
+  title:document.getElementById('title').value,
+  description:document.getElementById('desc').value,
+  price:parseInt(document.getElementById('price').value)||0,
+  category:document.getElementById('cat').value,
+  location:document.getElementById('loc').value,
+  condition:document.getElementById('cond').value,
+  name:document.getElementById('name').value,
+  phone:document.getElementById('phone').value,
+  images:tempImages,
+  status:'active'
+ };
+ let fullData={...data, sham_enabled:document.getElementById('shamEnabled').checked, sham_wallet:document.getElementById('shamWallet').value};
+ let {error}=await sb.from('listings').insert([fullData]);
+ if(error && error.message.includes('sham_enabled')){
+  const res2=await sb.from('listings').insert([data]);
+  error=res2.error;
+ }
+ btn.disabled=false;btn.textContent='نشر الآن ✅';
+ if(error){alert('خطأ: '+error.message);return;}
+ document.getElementById('modal').classList.add('hidden');ev.target.reset();tempImages=[];document.getElementById('preview').innerHTML='';document.getElementById('shamBox').classList.add('hidden');
+ load();
 }
 load();
 </script>
