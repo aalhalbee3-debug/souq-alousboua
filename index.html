@@ -3,193 +3,607 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>سوق الأسبوع - بيع واشتري بأمان</title>
+<title>سوق الأسبوع - دخول سوري + دفع نقدي وشام كاش</title>
+
+<link rel="manifest" href="data:application/json;base64,[STRIPPED]">
+<meta name="theme-color" content="#7c3aed">
+<meta property="og:title" content="سوق الأسبوع - سوريا">
+<meta property="og:description" content="بيع وشراء في منبج وحلب - دفع نقدي وشام كاش">
+
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 *{font-family:'Tajawal',sans-serif}
-body{background:#f5f7fb}
-.card{transition:.2s}
-.card:hover{transform:translateY(-3px);box-shadow:0 12px 24px rgba(0,0,0,.1)}
+body{background:radial-gradient(1200px 600px at 10% -10%,#f3e7ff 0%,transparent 60%),radial-gradient(900px 500px at 90% 0%,#dbeafe 0%,transparent 55%),radial-gradient(800px 600px at 50% 120%,#fef9c3 0%,transparent 60%),#f8f8fb;min-height:100vh}
+.modern-card{background:white;border-radius:20px;border:1px solid #f0f0f3;overflow:hidden;transition:all.25s}
+.modern-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.08)}
+.glass{background:rgba(255,255,255,.88);backdrop-filter:blur(20px)}
 .scrollbar-hide::-webkit-scrollbar{display:none}
-.line-clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.marquee{animation:marquee 40s linear infinite}
+.verify-badge{background:linear-gradient(135deg,#10b981,#059669);color:white;padding:2px 8px;border-radius:999px;font-size:9px;font-weight:900}
+.verify-badge.blue{background:linear-gradient(135deg,#3b82f6,#2563eb)}
+.pay-tab{padding:10px 16px;border-radius:999px;font-weight:900;font-size:13px;cursor:pointer;transition:.2s;border:2px solid transparent}
+.pay-tab.active{border-color:#111;background:#111;color:white}
+.pay-tab.cash.active{background:linear-gradient(135deg,#10b981,#059669);border-color:#10b981}
+.pay-tab.sham.active{background:linear-gradient(135deg,#7c3aed,#ec4899);border-color:#7c3aed}
 </style>
 </head>
-<body>
+<body class="pb-">
 <script>
 const SUPABASE_URL='https://vnxvbrlztdlbpfwydzgj.supabase.co';
 const SUPABASE_ANON_KEY='sb_publishable_hqyuGb4LiX4hV2E7HI-ADQ_7RfbZjw9';
 </script>
-<header class="bg-white sticky top-0 z-40 border-b">
-<div class="max-w- mx-auto px-4 py-3 flex items-center justify-between gap-3">
-<div class="flex items-center gap-3">
-<div class="w-10 h-10 bg-zinc-900 rounded-xl flex items-center justify-center text-white font-black">س</div>
-<div class="leading-tight"><div class="font-black text-">سوق الأسبوع</div><div class="text- text-gray-500">بيع واشتري بأمان • شام كاش 💳</div></div>
+
+<header class="sticky top-0 z-30 glass border-b">
+<div class="max-w- mx-auto px-4 py-3 flex items-center gap-3">
+<div class="flex items-center gap-2.5"><div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black shadow-sm" style="background:linear-gradient(135deg,#7c3aed,#ec4899)">س</div><div><p class="font-black text- leading-none">سوق الأسبوع</p><p class="text- text-zinc-500 font-bold">سوريا • دفع نقدي وشام كاش</p></div></div>
+<div class="flex-1 flex items-center bg-[#f2f2f5] rounded-full px-4 py-2.5 focus-within:bg-white focus-within:shadow-[0_0_0_2px_#e9d5ff]"><span class="text-zinc-400">🔍</span><input id="search" oninput="onSearch(this.value)" placeholder="ابحث..." class="flex-1 bg-transparent outline-none text- mr-2"><button onclick="startVoice()" class="w-8 h-8 bg-white rounded-full shadow-sm">🎤</button></div>
+<button onclick="toggleDark()" class="w-9 h-9 bg-[#f2f2f5] rounded-full">🌙</button>
+<button onclick="openAccount()" id="navLabel" class="w-9 h-9 bg-[#f2f2f5] rounded-full flex items-center justify-center font-bold">👤</button>
+<button onclick="openAdd()" class="bg-zinc-900 text-white px-5 py-2.5 rounded-full font-black text-">+ بيع</button>
 </div>
-<div class="flex-1 max-w-xl mx-3 hidden md:block">
-<div class="relative"><input id="search" oninput="render()" placeholder="دور على أي شي... جوال، سيارة، بيت" class="w-full bg-gray-100 rounded-full px-5 py-2.5 pr-10 text-sm outline-none"><span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</span></div>
-</div>
-<div class="flex items-center gap-2">
-<button id="loginBtn" onclick="openLogin()" class="bg-gray-100 px-4 py-2 rounded-full font-bold text-sm">👤 دخول</button>
-<div id="userBox" class="hidden items-center gap-2"><span id="userName" class="text-sm font-bold bg-gray-100 px-3 py-1.5 rounded-full"></span><button onclick="logout()" class="text-xs bg-red-50 px-2 py-1 rounded-full">خروج</button></div>
-<button onclick="openAdd()" class="bg-zinc-900 text-white px-5 py-2.5 rounded-full font-black text-sm">+ نشر إعلان</button>
-</div>
-</div>
-<div class="md:hidden px-4 pb-3"><input id="searchM" oninput="document.getElementById('search').value=this.value;render()" placeholder="دور على أي شي..." class="w-full bg-gray-100 rounded-full px-5 py-2.5 text-sm"></div>
 </header>
-<div class="bg-zinc-900 text-white text- py-2 overflow-hidden relative">
-<div class="flex gap-8 whitespace-nowrap marquee w-max px-4">
-<span>🔥 أحمد من حلب اشترى بطارية بضمان</span><span>☀️ عرض طاقة شمسية 550 واط جديد</span><span>✅ تم توثيق 3 هويات اليوم</span><span>📱 آيفون 14 برو ماكس نظيف</span><span>🚗 كيا ريو 2018 للبدل</span>
-</div>
-<span class="absolute left-2 top-1/2 -translate-y-1/2 bg-amber-400 text-zinc-900 px-2.5 py-0.5 rounded-full text- font-black">مباشر</span>
-</div>
-<div class="bg-white border-b">
-<div class="max-w- mx-auto px-4 py-3 space-y-3">
+
+<div class="max-w- mx-auto px-4 pt-3">
 <div class="flex gap-2 overflow-auto scrollbar-hide">
-<button onclick="setCity('')" class="cityBtn bg-zinc-900 text-white px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">الكل</button>
-<button onclick="setCity('دمشق')" class="cityBtn bg-white border px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">دمشق</button>
-<button onclick="setCity('ريف دمشق')" class="cityBtn bg-white border px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">ريف دمشق</button>
-<button onclick="setCity('حلب')" class="cityBtn bg-white border px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">حلب</button>
-<button onclick="setCity('منبج')" class="cityBtn bg-white border px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">منبج</button>
-<button onclick="setCity('حمص')" class="cityBtn bg-white border px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">حمص</button>
-<button onclick="setCity('حماة')" class="cityBtn bg-white border px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">حماة</button>
-<button onclick="setCity('اللاذقية')" class="cityBtn bg-white border px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">اللاذقية</button>
-<button onclick="setCity('طرطوس')" class="cityBtn bg-white border px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">طرطوس</button>
-<button onclick="setCity('إدلب')" class="cityBtn bg-white border px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">إدلب</button>
-<button onclick="setCity('درعا')" class="cityBtn bg-white border px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">درعا</button>
-<button onclick="setCity('دير الزور')" class="cityBtn bg-white border px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">دير الزور</button>
-<button onclick="setCity('الرقة')" class="cityBtn bg-white border px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">الرقة</button>
-<button onclick="setCity('الحسكة')" class="cityBtn bg-white border px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">الحسكة</button>
-<button onclick="setCity('السويداء')" class="cityBtn bg-white border px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">السويداء</button>
-<button onclick="setCity('القنيطرة')" class="cityBtn bg-white border px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">القنيطرة</button>
-</div>
-<div class="flex gap-2 overflow-auto scrollbar-hide">
-<button onclick="setCat('')" class="catBtn bg-amber-300 px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">الكل</button>
-<button onclick="setCat('موثق')" class="catBtn bg-white border px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">موثق ✅</button>
-<button onclick="setCat('طاقة')" class="catBtn bg-white border px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">طاقة ☀️</button>
-<button onclick="setCat('بدل')" class="catBtn bg-white border px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">بدل 🔄</button>
-<button onclick="setCat('فيديو')" class="catBtn bg-white border px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">فيديو 🎥</button>
-<button onclick="setCat('ضمان')" class="catBtn bg-white border px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">ضمان 🛡️</button>
-<button onclick="setCat('وظائف')" class="catBtn bg-white border px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">وظائف 💼</button>
-<button onclick="setCat('مستلزمات')" class="catBtn bg-white border px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">مستلزمات</button>
-<button onclick="setCat('أخرى')" class="catBtn bg-white border px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">أخرى</button>
-<button onclick="setCat('شام كاش')" class="catBtn bg-white border px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">💳 شام كاش</button>
+<button onclick="setCity('')" data-city="" class="cityBtn px-4 py-2 rounded-full text- font-bold bg-zinc-900 text-white">🌍 كل سوريا</button>
+<button data-city="منبج" class="cityBtn bg-white border px-4 py-2 rounded-full text- font-bold">منبج 📍</button>
+<button data-city="حلب" class="cityBtn bg-white border px-4 py-2 rounded-full text- font-bold">حلب</button>
+<button data-city="دمشق" class="cityBtn bg-white border px-4 py-2 rounded-full text- font-bold">دمشق</button>
+<button data-city="ريف دمشق" class="cityBtn bg-white border px-4 py-2 rounded-full text- font-bold">ريف دمشق</button>
+<button data-city="حمص" class="cityBtn bg-white border px-4 py-2 rounded-full text- font-bold">حمص</button>
+<button data-city="حماة" class="cityBtn bg-white border px-4 py-2 rounded-full text- font-bold">حماة</button>
+<button data-city="اللاذقية" class="cityBtn bg-white border px-4 py-2 rounded-full text- font-bold">اللاذقية</button>
+<button data-city="طرطوس" class="cityBtn bg-white border px-4 py-2 rounded-full text- font-bold">طرطوس</button>
+<button data-city="إدلب" class="cityBtn bg-white border px-4 py-2 rounded-full text- font-bold">إدلب</button>
+<button data-city="درعا" class="cityBtn bg-white border px-4 py-2 rounded-full text- font-bold">درعا</button>
+<button data-city="دير الزور" class="cityBtn bg-white border px-4 py-2 rounded-full text- font-bold">دير الزور</button>
+<button data-city="الرقة" class="cityBtn bg-white border px-4 py-2 rounded-full text- font-bold">الرقة</button>
+<button data-city="الحسكة" class="cityBtn bg-white border px-4 py-2 rounded-full text- font-bold">الحسكة</button>
+<button data-city="السويداء" class="cityBtn bg-white border px-4 py-2 rounded-full text- font-bold">السويداء</button>
+<button data-city="القنيطرة" class="cityBtn bg-white border px-4 py-2 rounded-full text- font-bold">القنيطرة</button>
 </div>
 </div>
+
+<div class="max-w- mx-auto px-4 pt-4">
+<div class="bg-white/80 backdrop-blur rounded- border p-4 shadow-sm">
+<p class="font-black text- mb-3">الأقسام • نقدي وشام كاش</p>
+<div class="grid grid-cols-4 md:grid-cols-8 gap-3">0
+<div onclick="setCat('')" class="flex flex-col items-center gap-2 cursor-pointer"><div class="w- h- rounded-2xl flex items-center justify-center text-" style="background:linear-gradient(135deg,#fde68a,#fbbf24)">✨</div><span class="text- font-bold">الكل</span></divfull text- font-bold">🔔 إشعارات</button>
+<button onclick="clearFilters()" class="bg-white border px-3 py-1.5 rounded-full text- font-bold">مسح ✕</button>
 </div>
-<main class="max-w- mx-auto px-4 py-5">
-<div class="flex justify-between items-center mb-4"><button onclick="clearFilters()" class="bg-white border px-3 py-1.5 rounded-full text-xs font-bold">مسح الفلتر ✕</button><span id="count" class="text-xs font-bold text-emerald-600"></span></div>
-<div id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
-<div id="empty" class="hidden text-center py-20"><div class="text-6xl">🛍️</div><p class="font-bold mt-3">لا يوجد إعلانات</p></div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-5 gap-2 mt-3">
+<div class="flex gap-1"><input id="minPrice" type="number" placeholder="من $" class="w-full bg-[#f8f8fb] border rounded-full px-3 py-2 text- outline-none"><input id="maxPrice" type="number" placeholder="إلى $" class="w-full bg-[#f8f8fb] border rounded-full px-3 py-2 text- outline-none"></div>
+<select id="condFilter" onchange="render()" class="bg-[#f8f8fb] border rounded-full px-3 py-2 text-"><option value="">الحالة: الكل</option><option value="جديد">جديد</option><option value="مستعمل">مستعمل</option></select>
+<select id="sortBy" onchange="render()" class="bg-[#f8f8fb] border rounded-full px-3 py-2 text-"><option value="new">الأحدث أولاً</option><option value="cheap">الأرخص أولاً</option><option value="expensive">الأغلى أولاً</option><option value="near">الأقرب لي 📍</option></select>
+<button onclick="installPWA()" id="installBtn" class="hidden bg-zinc-900 text-white px-3 py-2 rounded-full text- font-bold">📲 ثبّت التطبيق</button>
+<!-- admin removed --><button style="display:none" onclick="openAdmin()" class="bg-amber-50 border border-amber-200 text-amber-800 px-3 py-2 rounded-full text- font-bold">🔧 إدارة</button>
+</div>
+</div>
+</div>
+
+<main class="max-w- mx-auto px-4">
+<div class="bg-white/60 backdrop-blur rounded- p-2 border border-white">
+<div id="grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"></div>
+</div>
+<div id="mapView" class="hidden h- rounded- overflow-hidden border bg-white mt-3"><div id="map" class="w-full h-full"></div></div>
+<div id="empty" class="hidden text-center py-16 bg-white rounded- border mt-4"><p class="text-5xl">🔍</p><p class="font-bold mt-3">لا نتائج</p></div>
 </main>
-<div id="loginModal" class="hidden fixed inset-0 bg-black/60 z-[80] flex items-center justify-center p-4"><div class="bg-white rounded- w-full max-w-sm p-6"><h2 class="font-black text-xl mb-4">تسجيل دخول</h2><input id="loginPhone" placeholder="رقم 9639..." class="w-full border rounded-2xl px-4 py-3 mb-3"><input id="loginName" placeholder="اسمك" class="w-full border rounded-2xl px-4 py-3 mb-3"><button onclick="doLogin()" class="w-full bg-zinc-900 text-white py-3 rounded-2xl font-black">دخول</button><button onclick="document.getElementById('loginModal').classList.add('hidden')" class="w-full mt-2 bg-gray-100 py-3 rounded-2xl">إغلاق</button></div></div>
-<div id="modal" class="hidden fixed inset-0 bg-black/60 z-[70] flex items-center justify-center p-4"><div class="bg-white rounded- w-full max-w-lg max-h- overflow-auto p-6"><div class="flex justify-between mb-4"><h2 class="font-black text-xl">نشر إعلان</h2><button onclick="document.getElementById('modal').classList.add('hidden')" class="w-8 h-8 bg-gray-100 rounded-full">✕</button></div><form onsubmit="submitAd(event)" class="space-y-3"><input id="title" required placeholder="عنوان *" class="w-full border rounded-2xl px-4 py-3 text-sm"><textarea id="desc" required placeholder="الوصف..." class="w-full border rounded-2xl px-4 py-3 text-sm h-20"></textarea><div class="grid grid-cols-2 gap-2"><input id="price" type="number" required placeholder="السعر $" class="border rounded-2xl px-4 py-3 text-sm"><select id="cat" class="border rounded-2xl px-4 py-3 text-sm bg-white"><option>جوالات</option><option>سيارات</option><option>عقارات</option><option>أثاث</option><option>إلكترونيات</option><option>ملابس</option><option>طاقة</option><option>وظائف</option><option>ضمان</option><option>مستلزمات</option><option>أخرى</option></select></div><div class="grid grid-cols-2 gap-2"><select id="loc" class="border rounded-2xl px-4 py-3 text-sm bg-white"><option>دمشق</option><option>ريف دمشق</option><option>حلب</option><option>منبج</option><option>حمص</option><option>حماة</option><option>اللاذقية</option><option>طرطوس</option><option>إدلب</option><option>درعا</option><option>دير الزور</option><option>الرقة</option><option>الحسكة</option><option>السويداء</option><option>القنيطرة</option></select><select id="cond" class="border rounded-2xl px-4 py-3 text-sm bg-white"><option>جديد</option><option>مستعمل - ممتاز</option><option>مستعمل - جيد</option></select></div><input id="name" required placeholder="اسمك *" class="w-full border rounded-2xl px-4 py-3 text-sm"><input id="phone" required placeholder="واتساب 9639..." class="w-full border rounded-2xl px-4 py-3 text-sm"><div class="bg-amber-50 border border-amber-200 rounded-2xl p-4"><label class="flex gap-2 font-bold text-sm cursor-pointer"><input type="checkbox" id="shamEnabled" onchange="document.getElementById('shamBox').classList.toggle('hidden',!this.checked)"> 💳 أقبل شام كاش</label><div id="shamBox" class="hidden mt-3"><input id="shamWallet" placeholder="رقم محفظة شام كاش" class="w-full border rounded-xl px-4 py-3 text-sm bg-white"></div></div><input id="images" type="file" accept="image/*" multiple class="w-full border-dashed border rounded-2xl px-4 py-3 text-sm bg-gray-50"><div id="preview" class="flex gap-2 flex-wrap"></div><button id="submitBtn" class="w-full bg-zinc-900 text-white py-4 rounded-2xl font-black">نشر الآن ✅</button></form></div></div>
-<div id="detailModal" class="hidden fixed inset-0 bg-black/70 z-[90] flex items-center justify-center p-4"><div class="bg-white rounded- w-full max-w-lg max-h- overflow-auto"><div id="detailImgWrap" class="h-64 bg-gray-100 relative"></div><div class="p-5"><h3 id="detailTitle" class="font-black text-lg"></h3><p id="detailDesc" class="text-sm text-gray-600 mt-2"></p><p id="detailMeta" class="text-xs text-gray-400 mt-2"></p><div id="detailSham" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-4 mt-4"><p class="font-black text-sm">💳 الدفع عبر شام كاش</p><p class="text-xs mt-1">محفظة: <span id="detailWallet" class="font-mono font-bold"></span></p><button onclick="alert('تم التسجيل!')" class="w-full mt-3 bg-amber-400 py-2.5 rounded-xl font-black text-sm">تم التحويل ✅</button></div><div class="grid grid-cols-2 gap-2 mt-4"><a id="detailWA" target="_blank" class="bg-emerald-600 text-white text-center py-3 rounded-xl font-bold text-sm">💬 واتساب</a><button onclick="document.getElementById('detailModal').classList.add('hidden')" class="bg-gray-100 py-3 rounded-xl font-bold text-sm">إغلاق</button></div><div class="mt-6 border-t pt-4"><h4 class="font-black text-sm mb-3">💬 ردود الإعلان (<span id="replyCount">0</span>)</h4><div id="repliesList" class="space-y-2 max-h-48 overflow-auto"></div><div class="flex gap-2 mt-3"><input id="replyText" placeholder="اكتب رد..." class="flex-1 border rounded-full px-4 py-2 text-sm"><button onclick="addReply()" class="bg-zinc-900 text-white px-5 py-2 rounded-full text-sm font-bold">إرسال</button></div></div></div></div></div>
+
+<!-- DETAIL WITH 2 PAYMENT OPTIONS -->
+<div id="detailSheet" class="fixed inset-0 z-[60] hidden bg-[#f8f8fb] overflow-auto">
+<div class="max-w- mx-auto bg-white min-h-screen md:rounded- md:mt-4 md:shadow-2xl overflow-hidden">
+<div class="sticky top-0 z-10 glass border-b flex items-center gap-3 px-4 py-3"><button onclick="closeDetail()" class="w-9 h-9 bg-[#f2f2f5] rounded-full">←</button><p class="font-black">التفاصيل</p></div>
+<div class="md:flex">
+<div class="md:w-[58%] bg-zinc-900 flex items-center justify-center h- md:h-" id="sheetImg"></div>
+<div class="md:w-[42%] p-5">
+<h1 id="sheetTitle" class="font-black text-"></h1>
+<p id="sheetPrice" class="font-black text- mt-2" style="background:linear-gradient(135deg,#7c3aed,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent"></p>
+<div id="sheetMeta" class="flex flex-wrap gap-2 mt-3 text-"></div>
+<p id="sheetDesc" class="text- leading-7 mt-4 bg-[#f8f8fb] rounded-2xl p-4 border"></p>
+
+<div class="mt-4 border rounded-2xl p-4 flex gap-3 items-center"><div class="w-12 h-12 rounded-full bg-gradient-to-br from-violet-500 to-pink-500 text-white flex items-center justify-center font-black" id="sellerAvatar">س</div><div class="flex-1"><p class="font-bold text-" id="sellerName"></p><p class="text- text-zinc-500" id="sellerBadge"></p></div></div>
+
+<!-- PAYMENT OPTIONS TABS -->
+<div class="mt-5">
+<div class="flex justify-between items-center mb-3"><p class="font-black text-">💰 خيارات الدفع</p><button onclick="shareAd()" class="text- bg-[#f2f2f5] px-3 py-1 rounded-full font-bold">↗️ مشاركة</button></div>
+<div class="flex gap-2 mb-3">
+<button onclick="setPay('cash')" id="payCash" class="pay-tab cash active flex-1">💵 نقداً</button>
+<button onclick="setPay('sham')" id="paySham" class="pay-tab sham flex-1">💳 شام كاش</button>
+<button onclick="setPay('escrow')" id="payEscrow" class="pay-tab flex-1 bg-amber-50 border-amber-200">🛡️ ضمان</button>
+</div>
+
+<div id="payCashBox" class="bg-emerald-50 border-2 border-emerald-200 rounded- p-4">
+<p class="font-black text- text-emerald-800">💵 الدفع نقداً - عند المعاينة</p>
+<p class="text- text-emerald-700 mt-1 leading-5">• قابل البائع • عاين المنتج • ادفع كاش يد بيد • آمن 100%</p>
+<div class="mt-3 p-2 bg-white rounded-xl border text-"><p>📍 مكان التسليم: <b id="cashLocation"></b></p><p class="mt-1">💬 تواصل واتساب لتحديد الموعد</p></div>
+<button onclick="confirmCash()" class="w-full mt-3 py-3 rounded-full font-black text-white" style="background:linear-gradient(135deg,#10b981,#059669)">✅ طلب معاينة نقدية</button>
+</div>
+
+<div id="payShamBox" class="hidden bg-violet-50 border-2 border-violet-200 rounded- p-4">
+<p class="font-black text- text-violet-800">💳 دفع آمن عبر شام كاش</p>
+<p id="sheetWallet" class="font-mono font-black text- mt-2 bg-white px-3 py-2 rounded-xl border inline-block"></p>
+<img id="sheetQR" class="w-28 h-28 mt-3 rounded-xl border bg-white p-1 mx-auto">
+<div id="purchaseStatus" class="hidden mt-2 p-2 rounded-xl text- font-bold"></div>
+<div class="grid grid-cols-2 gap-2 mt-3"><button onclick="confirmSham()" id="confirmBtn" class="py-3 rounded-full font-black text-white" style="background:linear-gradient(135deg,#7c3aed,#ec4899)">✅ تأكيد تحويل</button><button onclick="copyWallet()" class="bg-white border py-3 rounded-full font-bold">📋 نسخ الرقم</button></div>
+</div>
+</div>
+
+<!-- STORE BUTTON -->
+<div class="mt-4 flex gap-2">
+<button onclick="openStore(currentDetail.phone)" class="flex-1 bg-white border-2 border-zinc-900 py-2.5 rounded-full font-bold text-">🏪 متجر البائع</button>
+<button onclick="openReport()" class="bg-red-50 border border-red-200 text-red-700 px-4 py-2.5 rounded-full font-bold text-">🚩 بلاغ</button>
+</div>
+
+<!-- INTERNAL CHAT -->
+<div class="mt-4 bg-zinc-900 text-white rounded- p-4">
+<p class="font-black text-">💬 دردشة داخل السوق (بدون واتساب)</p>
+<div id="chatBox" class="mt-3 max-h- overflow-auto space-y-2 bg-white/10 rounded-xl p-3"></div>
+<div class="flex gap-2 mt-3"><input id="chatInput" placeholder="اكتب رسالة..." class="flex-1 bg-white/10 border border-white/20 rounded-full px-4 py-2.5 text- outline-none placeholder:text-white/50"><button onclick="sendChat()" class="bg-white text-zinc-900 w-10 h-10 rounded-full font-black">↑</button></div>
+</div>
+
+<div id="payEscrowBox" class="hidden mt-3 bg-amber-50 border-2 border-amber-300 rounded- p-4">
+<p class="font-black text- text-amber-800">🛡️ ضمان شام كاش - فلوسك بأمان</p>
+<p class="text- mt-1 leading-5">الفلوس تضل محجوزة عند سوق الأسبوع لحد ما تستلم وتتأكد - بعدين نحول للبائع</p>
+<div class="flex items-center gap-2 mt-2"><input type="checkbox" id="escrowCheck" class="w-5 h-5"><span class="text- font-bold">أريد الضمان (رسوم 1%)</span></div>
+<button onclick="confirmEscrow()" class="w-full mt-3 py-3 rounded-full font-black text-white bg-amber-500">🛡️ تأكيد بضمان</button>
+</div>iv id="loginError" class="hidden mt-3 text- text-red-600 bg-red-50 border rounded-xl p-2.5"></div>
+<button onclick="requestOTP()" id="requestBtn" class="w-full text-white py-3.5 rounded-full font-black mt-4 shadow-lg" style="background:linear-gradient(135deg,#7c3aed,#ec4899)">📩 طلب كود التحقق</button>
+<button onclick="closeLogin()" class="w-full mt-2 bg-[#f8f8fb] py-3 rounded-full font-bold text-">إغلاق</button>
+</div>
+<div id="loginStep2" class="hidden">
+<div class="text-center"><p class="font-bold text-">📩 تم إرسال الكود إلى</p><p class="font-mono font-black text- mt-1" id="otpPhoneDisplay"></p></div>
+<div class="flex gap-2 justify-center mt-5" dir="ltr">
+<input id="otp1" maxlength="1" class="w-12 h-14 bg-[#f8f8fb] border-2 rounded-xl text-center text- font-black outline-none" oninput="moveOTP(this,0)">
+<input id="otp2" maxlength="1" class="w-12 h-14 bg-[#f8f8fb] border-2 rounded-xl text-center text- font-black outline-none" oninput="moveOTP(this,1)">
+<input id="otp3" maxlength="1" class="w-12 h-14 bg-[#f8f8fb] border-2 rounded-xl text-center text- font-black outline-none" oninput="moveOTP(this,2)">
+<input id="otp4" maxlength="1" class="w-12 h-14 bg-[#f8f8fb] border-2 rounded-xl text-center text- font-black outline-none" oninput="moveOTP(this,3)">
+<input id="otp5" maxlength="1" class="w-12 h-14 bg-[#f8f8fb] border-2 rounded-xl text-center text- font-black outline-none" oninput="moveOTP(this,4)">
+<input id="otp6" maxlength="1" class="w-12 h-14 bg-[#f8f8fb] border-2 rounded-xl text-center text- font-black outline-none" oninput="moveOTP(this,5)">
+</div>
+<div id="otpError" class="hidden mt-3 text- text-red-600 bg-red-50 border rounded-xl p-2.5 text-center"></div>
+<div id="otpDemoBox" class="bg-amber-50 border rounded-xl p-2.5 mt-3 text- text-center">🔑 كود تجريبي: <span id="demoCode" class="font-black"></span></div>
+<button onclick="verifyOTP()" class="w-full text-white py-3.5 rounded-full font-black mt-4" style="background:linear-gradient(135deg,#10b981,#059669)">✅ تأكيد الكود</button>
+<div class="flex gap-2 mt-3"><button onclick="backToStep1()" class="flex-1 bg-[#f8f8fb] py-3 rounded-full font-bold text-">← تعديل</button><button onclick="resendOTP()" class="flex-1 bg-white border py-3 rounded-full font-bold text-">إعادة إرسال 🔄</button></div>
+</div>
+<div id="loggedBox" class="hidden mt-5 p-4 bg-emerald-50 border-2 border-emerald-200 rounded-2xl text-center">
+<p class="font-black" id="loggedName"></p><p class="font-mono font-bold text- mt-1" id="loggedPhone"></p>
+<div class="grid grid-cols-2 gap-2 mt-3"><button onclick="logout()" class="bg-white border py-2.5 rounded-full text- font-bold text-red-600">خروج</button><button onclick="closeLogin();openVerify()" class="bg-emerald-600 text-white py-2.5 rounded-full text- font-bold">توثيق 🔐</button></div>
+</div>
+</div>
+</div>
+
+<!-- VERIFY -->
+<div id="verifyModal" class="hidden fixed inset-0 bg-black/40 z-[80] flex items-center justify-center p-4"><div class="bg-white rounded- w-full max-w-md p-5"><div class="flex justify-between mb-4"><h2 class="font-black">توثيق رقم سوري 🇸🇾</h2><button onclick="document.getElementById('verifyModal').classList.add('hidden')" class="w-8 h-8 bg-[#f8f8fb] rounded-full">✕</button></div><div class="space-y-3"><div class="border-2 border-emerald-200 bg-emerald-50 rounded-2xl p-3 flex justify-between"><p class="font-bold text-">📱 رقم سوري موثق</p><span class="verify-badge blue">🇸🇾 موثق</span></div><div class="border-2 rounded-2xl p-3"><p class="font-bold text-">🪪 هوية سورية</p><div class="grid grid-cols-2 gap-2 mt-2"><label class="border-2 border-dashed rounded-xl p-3 text-center cursor-pointer bg-[#f8f8fb]"><input type="file" id="idFront" accept="image/*" class="hidden"><div class="text-">وجه الهوية</div></label><label class="border-2 border-dashed rounded-xl p-3 text-center cursor-pointer bg-[#f8f8fb]"><input type="file" id="idBack" accept="image/*" class="hidden"><div class="text-">خلف الهوية</div></label></div><button onclick="submitVerify()" class="w-full mt-2 py-3 rounded-full font-black text-white bg-zinc-900">توثيق</button></div></div></div></div>
+
+<!-- ADD WITH 2 PAY OPTIONS -->
+<div id="addModal" class="hidden fixed inset-0 bg-black/40 z-[70] flex items-center justify-center p-4"><div class="bg-white rounded- w-full max-w-lg max-h- overflow-auto p-5"><div class="flex justify-between mb-4"><h2 class="font-black text-lg">بيع في سوق الأسبوع</h2><button onclick="document.getElementById('addModal').classList.add('hidden')" class="w-8 h-8 bg-[#f8f8fb] rounded-full">✕</button></div><form onsubmit="submitAd(event)" class="space-y-3"><input id="title" required placeholder="شو بدك تبيع؟ *" class="w-full bg-[#f8f8fb] border rounded-2xl px-4 py-3 text-sm outline-none"><textarea id="desc" required placeholder="الوصف *" class="w-full bg-[#f8f8fb] border rounded-2xl px-4 py-3 text-sm h-20 outline-none"></textarea><div class="grid grid-cols-2 gap-2"><input id="price" type="number" required placeholder="السعر $ *" class="bg-[#f8f8fb] border rounded-2xl px-4 py-3 text-sm outline-none"><select id="cat" class="bg-[#f8f8fb] border rounded-2xl px-4 py-3 text-sm"><option>جوالات</option><option>سيارات</option><option>عقارات</option><option>طاقة</option><option>بدل</option><option>أخرى</option></select></div><select id="loc" class="w-full bg-[#f8f8fb] border rounded-2xl px-4 py-3 text-sm"><option>منبج</option><option>حلب</option><option>دمشق</option><option>حمص</option><option>إدلب</option><option>اللاذقية</option><option>حماة</option><option>السويداء</option><option>القنيطرة</option></select><div class="bg-zinc-50 border rounded-2xl p-3"><p class="font-black text- mb-2">💰 طرق الدفع المقبولة</p><label class="flex items-center gap-2 bg-white border-2 border-emerald-200 rounded-xl p-3 mb-2"><input type="checkbox" id="payCash" checked class="w-5 h-5"><span class="font-bold text-">💵 دفع نقداً - عند المعاينة (افتراضي)</span></label><label class="flex items-center gap-2 bg-white border rounded-xl p-3"><input type="checkbox" id="shamEnabled" onchange="document.getElementById('shamBox').classList.toggle('hidden',!this.checked)" class="w-5 h-5"><span class="font-bold text-">💳 شام كاش - دفع آمن</span></label><div id="shamBox" class="hidden mt-2"><input id="shamWallet" placeholder="رقم محفظة شام كاش 9639..." class="w-full bg-white border rounded-xl px-4 py-3 text-sm outline-none"></div></div><input id="images" type="file" accept="image/*" multiple class="w-full border-dashed border-2 border-violet-200 rounded-2xl px-4 py-3 text-sm bg-violet-50/50"><div id="preview" class="flex gap-2 flex-wrap mt-2"></div><button id="submitBtn" type="submit" class="w-full text-white py-4 rounded-full font-black shadow-lg" style="background:linear-gradient(135deg,#7c3aed,#ec4899)">نشر الآن 🚀</button></form></div></div>
+
+<!-- REPORT MODAL -->
+<div id="reportModal" class="hidden fixed inset-0 bg-black/50 z-[85] flex items-center justify-center p-4"><div class="bg-white rounded- w-full max-w-sm p-5"><h3 class="font-black">🚩 بلاغ عن إعلان</h3><p class="text- text-zinc-500 mt-1">ساعدنا نحافظ على سوق آمن</p><div class="grid grid-cols-2 gap-2 mt-4"><button onclick="submitReport('نصب')" class="bg-red-50 border border-red-200 py-3 rounded-xl text- font-bold">نصب ❌</button><button onclick="submitReport('صورة مزيفة')" class="bg-amber-50 border border-amber-200 py-3 rounded-xl text- font-bold">صورة مزيفة 🖼️</button><button onclick="submitReport('سعر وهمي')" class="bg-zinc-50 border py-3 rounded-xl text- font-bold">سعر وهمي 💰</button><button onclick="submitReport('مكرر')" class="bg-zinc-50 border py-3 rounded-xl text- font-bold">مكرر 🔁</button></div><textarea id="reportText" placeholder="تفاصيل إضافية..." class="w-full bg-[#f8f8fb] border rounded-xl p-3 mt-3 text- h-16"></textarea><div class="grid grid-cols-2 gap-2 mt-3"><button onclick="document.getElementById('reportModal').classList.add('hidden')" class="bg-[#f8f8fb] py-3 rounded-full font-bold">إلغاء</button><button onclick="submitReport('عام')" class="bg-red-600 text-white py-3 rounded-full font-black">إرسال بلاغ 🚩</button></div></div></div>
+
+<!-- ADMIN PANEL -->
+<div id="adminModal" class="hidden fixed inset-0 bg-black/60 z-[90] flex items-center justify-center p-4"><div class="bg-white rounded- w-full max-w-2xl max-h- overflow-auto p-5"><div class="flex justify-between mb-4"><h2 class="font-black text-">🔧 لوحة الإدارة - سوق الأسبوع</h2><button onclick="document.getElementById('adminModal').classList.add('hidden')" class="w-8 h-8 bg-zinc-100 rounded-full">✕</button></div><div class="grid grid-cols-3 gap-2 mb-4"><div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-center"><p class="font-black text-" id="adminTotal">0</p><p class="text-">إجمالي الإعلانات</p></div><div class="bg-red-50 border border-red-200 rounded-xl p-3 text-center"><p class="font-black text-" id="adminReports">0</p><p class="text-">بلاغات</p></div><div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-center"><p class="font-black text-" id="adminPromoted">0</p><p class="text-">مميزة</p></div></div><div class="space-y-3"><h3 class="font-bold text-">🚩 البلاغات</h3><div id="adminReportsList" class="space-y-2"></div><h3 class="font-bold text- mt-4">🪪 طلبات توثيق</h3><div id="adminVerifyList" class="space-y-2"></div><h3 class="font-bold text- mt-4">⭐ ترويج الإعلانات</h3><div class="flex gap-2"><input id="promoteId" placeholder="ID الإعلان" class="flex-1 bg-[#f8f8fb] border rounded-full px-4 py-2 text-"><button onclick="promoteAd()" class="bg-zinc-900 text-white px-4 py-2 rounded-full text- font-bold">تثبيت 24 ساعة ⭐</button></div></div></div></div>
+
+<!-- STORE PAGE -->
+<div id="storeModal" class="hidden fixed inset-0 bg-[#f8f8fb] z-[85] overflow-auto"><div class="max-w- mx-auto bg-white min-h-screen"><div class="sticky top-0 bg-white border-b flex items-center gap-3 px-4 py-3"><button onclick="document.getElementById('storeModal').classList.add('hidden')" class="w-9 h-9 bg-[#f2f2f5] rounded-full">←</button><p class="font-black">🏪 متجر البائع</p></div><div class="p-5"><div class="flex gap-4 items-center"><div class="w-16 h-16 rounded-full bg-gradient-to-br from-violet-500 to-pink-500 text-white flex items-center justify-center font-black text-2xl" id="storeAvatar">س</div><div><p class="font-black text-" id="storeName"></p><p class="text- text-zinc-500" id="storePhone"></p><p class="text- mt-1"><span id="storeRating"></span> • <span id="storeCount"></span> إعلان</p></div></div><div id="storeGrid" class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6"></div></div></div></div>
+
+<div id="ordersModal" class="hidden fixed inset-0 bg-black/40 z-[70] flex items-center justify-center p-4"><div class="bg-white rounded- w-full max-w-md p-5"><div class="flex justify-between mb-4"><h2 class="font-black">طلباتي</h2><button onclick="document.getElementById('ordersModal').classList.add('hidden')" class="w-8 h-8 bg-[#f8f8fb] rounded-full">✕</button></div><div id="ordersList"></div></div></div>
+
 <script>
-let sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY),all=[],tempImages=[],city='',category='',currentDetail=null,currentUser=null;
-const saved=localStorage.getItem('souq_user');
-if(saved){currentUser=JSON.parse(saved);document.getElementById('loginBtn').classList.add('hidden');document.getElementById('userBox').classList.remove('hidden');document.getElementById('userBox').classList.add('flex');document.getElementById('userName').textContent=currentUser.name;}
-function openLogin(){document.getElementById('loginModal').classList.remove('hidden');}
-function doLogin(){const p=document.getElementById('loginPhone').value.trim(),n=document.getElementById('loginName').value.trim()||p;if(!p){alert('رقم');return;}localStorage.setItem('souq_user',JSON.stringify({phone:p,name:n}));location.reload();}
+let sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+let all=[],tempImages=[],city='',category='',currentDetail=null,currentUser=null,map=null,currentPay='cash';
+
+function toggleDark(){
+ const isDark=document.documentElement.classList.toggle('dark');
+ localStorage.setItem('theme',isDark?'dark':'light');
+ if(isDark){document.body.style.background='#0a0a0b';}else{document.body.style.background='radial-gradient(1200px 600px at 10% -10%,#f3e7ff 0%,transparent 60%),radial-gradient(900px 500px at 90% 0%,#dbeafe 0%,transparent 55%),radial-gradient(800px 600px at 50% 120%,#fef9c3 0%,transparent 60%),#f8f8fb';}
+}
+
+function loadUser(){
+ try{
+  const s=localStorage.getItem('souq_user');
+  if(s){
+   currentUser=JSON.parse(s);
+   const nav=document.getElementById('navLabel');
+   if(nav) nav.textContent='🇸🇾';
+   const ln=document.getElementById('loggedName');
+   const lp=document.getElementById('loggedPhone');
+   if(ln) ln.textContent=currentUser.name||'';
+   if(lp) lp.textContent='+963'+currentUser.phone;
+   const box=document.getElementById('loggedBox');
+   if(box) box.classList.remove('hidden');
+  }
+ }catch(e){}
+}
+function validateSyrian(input){
+ let v=input.value.replace(/[^0-9]/g,'');
+ if(v.startsWith('0')) v=v.substring(1);
+ if(v.startsWith('963')) v=v.substring(3);
+ input.value=v.slice(0,9);
+}
+function validateFullName(name){
+ const parts=name.trim().split(' ').filter(p=>p.length>1);
+ return parts.length>=2 && name.trim().length>=6;
+}
+let currentOTP=null;
+let otpExpiry=null;
+function requestOTP(){
+ const fullName=document.getElementById('loginFullName').value.trim();
+ const raw=document.getElementById('loginPhone').value.trim().replace(/[^0-9]/g,'');
+ const err=document.getElementById('loginError');
+ err.classList.add('hidden');
+ if(!fullName ||!validateFullName(fullName)){
+  err.textContent='⚠️ اكتب اسمك الكامل (اسمين على الأقل)';
+  err.classList.remove('hidden'); return;
+ }
+ if(!raw || raw.length<9 ||!raw.startsWith('9')){
+  err.textContent='⚠️ رقم سوري غير صحيح - يبدأ بـ 9 و 9 أرقام';
+  err.classList.remove('hidden'); return;
+ }
+ currentOTP=Math.floor(100000+Math.random()*900000).toString();
+ otpExpiry=new Date(Date.now()+5*60*1000);
+ const otpData={code:currentOTP,phone:raw,name:fullName,expiry:otpExpiry.toISOString()};
+ localStorage.setItem('otp_'+raw, JSON.stringify(otpData));
+ localStorage.setItem('pending_name', fullName);
+ localStorage.setItem('pending_phone', raw);
+ document.getElementById('loginStep1').classList.add('hidden');
+ document.getElementById('loginStep2').classList.remove('hidden');
+ document.getElementById('otpPhoneDisplay').textContent='+963'+raw;
+ document.getElementById('demoCode').textContent=currentOTP;
+ document.getElementById('otp1').focus();
+}
+function moveOTP(input, idx){
+ if(input.value.length===1 && idx<5){
+  document.getElementById('otp'+(idx+2)).focus();
+ }
+ let code='';
+ for(let i=1;i<=6;i++){code+=document.getElementById('otp'+i).value;}
+ if(code.length===6){setTimeout(()=>verifyOTP(),300);}
+}
+function verifyOTP(){
+ let code='';
+ for(let i=1;i<=6;i++){code+=document.getElementById('otp'+i).value;}
+ const err=document.getElementById('otpError');
+ err.classList.add('hidden');
+ if(code.length!==6){err.textContent='⚠️ اكتب الكود كامل';err.classList.remove('hidden');return;}
+ const raw=localStorage.getItem('pending_phone');
+ const pending=JSON.parse(localStorage.getItem('otp_'+raw)||'{}');
+ if(!pending.code || new Date() > new Date(pending.expiry)){
+  err.textContent='⚠️ الكود منتهي - اطلب جديد';err.classList.remove('hidden');return;
+ }
+ if(code!==pending.code){
+  err.textContent='❌ كود خاطئ - الصحيح: '+pending.code;err.classList.remove('hidden');return;
+ }
+ currentUser={phone:raw,fullPhone:'963'+raw,name:pending.name,syrian:true,verified:true,otpVerified:true};
+ localStorage.setItem('souq_user',JSON.stringify(currentUser));
+ localStorage.removeItem('otp_'+raw);
+ for(let i=1;i<=6;i++) document.getElementById('otp'+i).value='';
+ document.getElementById('loginStep2').classList.add('hidden');
+ document.getElementById('loggedBox').classList.remove('hidden');
+ document.getElementById('loggedName').textContent=pending.name;
+ document.getElementById('loggedPhone').textContent='+963'+raw;
+ setTimeout(()=>{closeLogin();},1200);
+}
+function backToStep1(){
+ document.getElementById('loginStep2').classList.add('hidden');
+ document.getElementById('loginStep1').classList.remove('hidden');
+ for(let i=1;i<=6;i++) document.getElementById('otp'+i).value='';
+}
+function resendOTP(){
+ const raw=localStorage.getItem('pending_phone');
+ const fullName=localStorage.getItem('pending_name')||'';
+ currentOTP=Math.floor(100000+Math.random()*900000).toString();
+ otpExpiry=new Date(Date.now()+5*60*1000);
+ localStorage.setItem('otp_'+raw, JSON.stringify({code:currentOTP,phone:raw,name:fullName,expiry:otpExpiry.toISOString()}));
+ document.getElementById('demoCode').textContent=currentOTP;
+ alert('تم إرسال كود جديد: '+currentOTP);
+}
+function doLogin(){requestOTP();}
+function closeLogin(){
+ const modal=document.getElementById('loginModal');
+ if(modal) modal.classList.add('hidden');
+ const s1=document.getElementById('loginStep1');
+ const s2=document.getElementById('loginStep2');
+ const box=document.getElementById('loggedBox');
+ if(s1) s1.classList.remove('hidden');
+ if(s2) s2.classList.add('hidden');
+ if(box) box.classList.add('hidden');
+ for(let i=1;i<=6;i++){const el=document.getElementById('otp'+i); if(el) el.value='';}
+}
 function logout(){localStorage.removeItem('souq_user');location.reload();}
-function openAdd(){if(!currentUser){openLogin();return;}const u=JSON.parse(localStorage.getItem('souq_user'));document.getElementById('name').value=u.name||'';document.getElementById('phone').value=u.phone||'';document.getElementById('modal').classList.remove('hidden');}
-function setCity(c){city=c;render();}
-function setCat(c){category=c;render();}
-function clearFilters(){city='';category='';document.getElementById('search').value='';const sm=document.getElementById('searchM');if(sm)sm.value='';render();}
-async function load(){const {data,error}=await sb.from('listings').select('*').order('created_at',{ascending:false});if(error){document.getElementById('grid').innerHTML='<p class=text-center>خطأ: '+error.message+'</p>';return;}all=data||[];render();}
-function getEmoji(cat){if(cat==='سيارات')return'🚗';if(cat==='طاقة')return'☀️';if(cat==='جوالات')return'📱';if(cat==='عقارات')return'🏠';if(cat==='وظائف')return'🧑‍🍳';if(cat==='إلكترونيات')return'💻';return'📦';}
-function getBg(cat){if(cat==='سيارات')return'bg-green-200';if(cat==='طاقة')return'bg-blue-200';if(cat==='جوالات')return'bg-amber-100';if(cat==='وظائف')return'bg-pink-200';return'bg-gray-100';}
-function render(){
-const q=(document.getElementById('search').value||'').toLowerCase();
-const f=all.filter(l=>{
-const mQ=!q||l.title.toLowerCase().includes(q)||(l.description||'').toLowerCase().includes(q);
-const mCity=!city||l.location===city;
-let mCat=true;
-if(category==='شام كاش')mCat=l.sham_enabled||l.sham_wallet;
-else if(category&&category!=='موثق')mCat=l.category===category;
-return mQ&&mCity&&mCat;
-});
-document.getElementById('count').textContent=f.length+' إعلان • '+f.length+' نشط';
-const grid=document.getElementById('grid');
-if(!f.length){grid.innerHTML='';document.getElementById('empty').classList.remove('hidden');return;}
-document.getElementById('empty').classList.add('hidden');
-grid.innerHTML=f.map(l=>{
-const emoji=getEmoji(l.category);
-const bg=getBg(l.category);
-const views=Math.floor(Math.random()*300)+50;
-const isSham=l.sham_enabled||l.sham_wallet;
-return`<div onclick="openDetail('${l.id}')" class="card bg-white rounded- overflow-hidden border border-gray-100 cursor-pointer"><div class="h- ${bg} relative flex items-center justify-center">${l.images&&l.images[0]?`<img src="${l.images[0]}" class="absolute inset-0 w-full h-full object-cover">`:''}<div class="text- relative z-10">${emoji}</div><div class="absolute top-3 right-3 flex gap-1 z-20"><span class="bg-white px-2.5 py-1 rounded-full text- font-bold shadow">موثق ✅</span>${isSham?'<span class="bg-zinc-900 text-white px-2.5 py-1 rounded-full text- font-bold">بضمان</span>':''}</div><div class="absolute bottom-3 left-3 bg-zinc-900 text-white px-2.5 py-1 rounded-full text- font-bold z-20">👁️ ${views}</div></div><div class="p-3.5"><h3 class="font-bold text-">${l.title}</h3><div class="flex items-center gap-1 mt-2 text- text-gray-500"><span>📍</span><span>${l.location||''}</span></div><div class="flex justify-between items-end mt-3"><span class="text- text-gray-400">${new Date(l.created_at).toLocaleDateString('ar-SY')}</span><span class="font-black text-">${l.price?l.price+' $':''}</span></div></div></div>`;
-}).join('');
+function openAccount(){document.getElementById('loginModal').classList.remove('hidden');}nst id=document.getElementById('promoteId').value.trim();
+ if(!id){alert('اكتب ID');return;}
+ const p=getPromoted();
+ const exp=new Date();exp.setDate(exp.getDate()+1);
+ p[id]=exp.toISOString();
+ localStorage.setItem('promoted',JSON.stringify(p));
+ alert('✅ تم تثبيت الإعلان 24 ساعة ⭐');
+ render();
+ document.getElementById('adminPromoted').textContent=Object.keys(getPromoted()).length;
 }
-async function openDetail(id){
-const l=all.find(x=>x.id===id);if(!l)return;
-currentDetail=l;
-document.getElementById('detailTitle').textContent=l.title;
-document.getElementById('detailDesc').textContent=l.description||'';
-document.getElementById('detailMeta').textContent=`${l.category||''} • ${l.location||''} • ${l.name||''}`;
-document.getElementById('detailImgWrap').innerHTML=l.images&&l.images[0]?`<img src="${l.images[0]}" class="w-full h-full object-cover">`:`<div class="w-full h-full flex items-center justify-center text-6xl ${getBg(l.category)}">${getEmoji(l.category)}</div>`;
-const sham=document.getElementById('detailSham');
-if(l.sham_enabled||l.sham_wallet){sham.classList.remove('hidden');document.getElementById('detailWallet').textContent=l.sham_wallet||l.phone;}else sham.classList.add('hidden');
-document.getElementById('detailWA').href=`https://wa.me/${(l.phone||'').replace(/[^0-9]/g,'')}`;
-document.getElementById('detailModal').classList.remove('hidden');
-loadReplies(id);
+
+// Reports
+function openReport(){if(!currentDetail)return;document.getElementById('reportModal').classList.remove('hidden');}
+function submitReport(type){
+ const text=document.getElementById('reportText').value;
+ let reports=JSON.parse(localStorage.getItem('reports')||'[]');
+ reports.push({id:currentDetail.id,title:currentDetail.title,type:type,text:text,phone:currentDetail.phone,date:new Date().toLocaleString('ar-SY')});
+ localStorage.setItem('reports',JSON.stringify(reports));
+ document.getElementById('reportModal').classList.add('hidden');
+ alert('✅ تم إرسال البلاغ - شكرا لحماية السوق 🚩');
+ loadAdmin();
 }
-let replies=[];
-async function loadReplies(listingId){
-const key='replies_'+listingId;
-replies=JSON.parse(localStorage.getItem(key)||'[]');
-renderReplies();
+
+// Admin
+function openAdmin(){
+ const pass=prompt('كلمة سر الإدارة (اكتب admin)');
+ if(pass!=='admin' && pass!=='123'){alert('خطأ');return;}
+ document.getElementById('adminModal').classList.remove('hidden');
+ loadAdmin();
 }
-function renderReplies(){
-document.getElementById('replyCount').textContent=replies.length;
-document.getElementById('repliesList').innerHTML=replies.map(r=>`<div class="bg-gray-50 rounded-xl p-3"><div class="font-bold text-xs">${r.name}</div><div class="text-sm mt-1">${r.text}</div><div class="text- text-gray-400 mt-1">${r.time}</div></div>`).join('')||'<p class=text-xs text-gray-400>لا يوجد ردود بعد</p>';
+function loadAdmin(){
+ document.getElementById('adminTotal').textContent=all.length;
+ document.getElementById('adminReports').textContent=JSON.parse(localStorage.getItem('reports')||'[]').length;
+ document.getElementById('adminPromoted').textContent=Object.keys(getPromoted()).length;
+ const reports=JSON.parse(localStorage.getItem('reports')||'[]');
+ document.getElementById('adminReportsList').innerHTML=reports.slice(-10).reverse().map(r=>`<div class="border rounded-xl p-3 bg-red-50 text-"><b>${r.title}</b> - ${r.type}<br><span class="text-">${r.text} • ${r.date}</span><br><button onclick="deleteAd('${r.id}')" class="mt-2 bg-red-600 text-white px-3 py-1 rounded-full text-">حذف الإعلان</button></div>`).join('')||'<p class="text- text-zinc-400">لا بلاغات</p>';
+ const verifies=JSON.parse(localStorage.getItem('verify_pending')||'[]');
+ document.getElementById('adminVerifyList').innerHTML=verifies.slice(-5).reverse().map(v=>`<div class="border rounded-xl p-3 bg-emerald-50 text-">${v.name} - ${v.phone}</div>`).join('')||'<p class="text- text-zinc-400">لا طلبات</p>';
 }
-function addReply(){
-const text=document.getElementById('replyText').value.trim();
-if(!text)return;
-if(!currentUser){openLogin();return;}
-const r={name:currentUser.name,text,time:new Date().toLocaleString('ar-SY')};
-replies.push(r);
-localStorage.setItem('replies_'+currentDetail.id,JSON.stringify(replies));
-document.getElementById('replyText').value='';
-renderReplies();
+window.deleteAd = function(id){
+ if(!confirm('حذف الإعلان؟'))return;
+ all=all.filter(x=>String(x.id)!==String(id));
+ render();
+ alert('تم الحذف محليا');
 }
-document.getElementById('images').addEventListener('change',e=>{
-tempImages=[];const p=document.getElementById('preview');p.innerHTML='';
-[...e.target.files].slice(0,4).forEach(f=>{
-const r=new FileReader();
-r.onload=ev=>{tempImages.push(ev.target.result);p.innerHTML+=`<img src="${ev.target.result}" class="w-16 h-16 rounded-xl object-cover border">`;};
-r.readAsDataURL(f);
-});
-});
-async function submitAd(ev){
-ev.preventDefault();
-const btn=document.getElementById('submitBtn');btn.disabled=true;btn.textContent='جاري النشر...';
-let data={
-title:document.getElementById('title').value,
-description:document.getElementById('desc').value,
-price:parseInt(document.getElementById('price').value)||0,
-category:document.getElementById('cat').value,
-location:document.getElementById('loc').value,
-condition:document.getElementById('cond').value,
-name:document.getElementById('name').value,
-phone:document.getElementById('phone').value,
-images:tempImages,
-status:'active'
+
+// Internal Chat
+function getChats(listingId){try{return JSON.parse(localStorage.getItem('chat_'+listingId)||'[]');}catch(e){return[];}}
+function loadChat(){
+ if(!currentDetail)return;
+ const chats=getChats(currentDetail.id);
+ document.getElementById('chatBox').innerHTML=chats.map(c=>`<div class="text- ${c.me?'text-left':''}"><span class="bg-white/20 px-3 py-1.5 rounded-full inline-block">${c.text}</span><span class="text- opacity-60 mr-1">${c.time}</span></div>`).join('')||'<p class="text- opacity-60">لا رسائل بعد - ابدأ الدردشة</p>';
+ document.getElementById('chatBox').scrollTop=document.getElementById('chatBox').scrollHeight;
+}
+function sendChat(){
+ const input=document.getElementById('chatInput');
+ const text=input.value.trim();
+ if(!text||!currentDetail)return;
+ if(!currentUser){openAccount();return;}
+ let chats=getChats(currentDetail.id);
+ chats.push({text:text,me:true,time:new Date().toLocaleTimeString('ar-SY',{hour:'2-digit',minute:'2-digit'}),by:currentUser.name});
+ localStorage.setItem('chat_'+currentDetail.id,JSON.stringify(chats));
+ input.value='';
+ loadChat();
+ setTimeout(()=>{
+  let chats2=getChats(currentDetail.id);
+  chats2.push({text:'شكرا لتواصلك، المنتج متوفر ✅',me:false,time:new Date().toLocaleTimeString('ar-SY',{hour:'2-digit',minute:'2-digit'}),by:currentDetail.name});
+  localStorage.setItem('chat_'+currentDetail.id,JSON.stringify(chats2));
+  loadChat();
+ },1200);
+}
+
+// Store
+function openStore(phone){
+ const sellerAds=all.filter(l=>l.phone===phone);
+ document.getElementById('storeName').textContent=sellerAds[0]?.name||phone;
+ document.getElementById('storePhone').textContent=phone;
+ document.getElementById('storeAvatar').textContent=(sellerAds[0]?.name||'س')[0];
+ document.getElementById('storeCount').textContent=sellerAds.length;
+ document.getElementById('storeRating').textContent='⭐ '+(getRatings?getAvgRating(phone).avg||'5.0':'5.0');
+ document.getElementById('storeGrid').innerHTML=sellerAds.map(l=>`<div onclick="document.getElementById('storeModal').classList.add('hidden');openDetail('${l.id}')" class="bg-white border rounded-xl overflow-hidden cursor-pointer"><div class="h-32 bg-[#f8f8fb]"><img src="${l.images&&l.images[0]?l.images[0]:''}" class="w-full h-full object-cover"></div><div class="p-2"><p class="font-bold text- truncate">${l.title}</p><p class="text- font-black">${formatPrice(l.price)}</p></div></div>`).join('');
+ document.getElementById('storeModal').classList.remove('hidden');
+}
+
+// Share
+function shareAd(){
+ if(!currentDetail)return;
+ const url=window.location.origin+window.location.pathname+'?id='+currentDetail.id;
+ if(navigator.share){navigator.share({title:currentDetail.title,text:currentDetail.title,url:url});}
+ else{navigator.clipboard.writeText(url);alert('✅ تم نسخ رابط الإعلان: '+url);}
+}
+
+// Escrow
+function confirmEscrow(){
+ if(!currentUser){openAccount();return;}
+ if(!document.getElementById('escrowCheck').checked){alert('فعّل خيار الضمان');return;}
+ const orders=JSON.parse(localStorage.getItem('souq_orders')||'[]');
+ orders.push({id:Date.now(),title:currentDetail.title,price:currentDetail.price,type:'escrow'});
+ localStorage.setItem('souq_orders',JSON.stringify(orders));
+ alert('🛡️ تم الحجز بضمان سوق الأسبوع - الفلوس محجوزة حتى الاستلام');
+}
+
+// PWA + Notifications
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBtn').classList.remove('hidden');});
+function installPWA(){if(deferredPrompt){deferredPrompt.prompt();}}
+function requestNotif(){
+ if(!('Notification' in window)){alert('المتصفح لا يدعم الإشعارات');return;}
+ Notification.requestPermission().then(p=>{if(p==='granted'){new Notification('سوق الأسبوع 🔔',{body:'تم تفعيل الإشعارات - سيصلك كل جديد من منبج'});alert('✅ تم تفعيل الإشعارات');}else{alert('لم يتم السماح');}});
+}
+if('serviceWorker' in navigator){
+ const swCode=`self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));});`;
+ const blob=new Blob([swCode],{type:'text/javascript'});
+ const swUrl=URL.createObjectURL(blob);
+ navigator.serviceWorker.register(swUrl).catch(()=>{});
+-1 rounded-full text- font-bold border">${payType}</span><span class="absolute bottom-2 left-2 bg-white/90 backdrop-blur px-2 py-1 rounded-full text- font-bold">${formatPrice(l.price)}</span></div>
+  <div class="p-3"><h3 class="text- font-bold truncate">${l.title}</h3><div class="flex justify-between mt-2 text- text-zinc-500"><span>📍 ${l.location||''}</span><span>${new Date(l.created_at).toLocaleDateString('ar-SY')}</span></div></div>
+  </div>`;
+ }).join('');
 };
-let fullData={...data,sham_enabled:document.getElementById('shamEnabled').checked,sham_wallet:document.getElementById('shamWallet').value};
-let {error}=await sb.from('listings').insert([fullData]);
-if(error && error.message.includes('sham_enabled')){
-const res2=await sb.from('listings').insert([data]);
-error=res2.error;
+
+// Open from URL?id=
+window.addEventListener('load',()=>{
+ const params=new URLSearchParams(window.location.search);
+ const id=params.get('id');
+ if(id){setTimeout(()=>openDetail(id),800);}
+});
+
+const origOpenDetail = openDetail;
+openDetail = function(id){
+ origOpenDetail(id);
+ loadChat();
+ history.replaceState(null,'','?id='+id);
+};
+
+// 1. AI AUTO DESCRIPTION
+let aiTimeout=null;
+function debounceAIDesc(){clearTimeout(aiTimeout);document.getElementById('aiTyping').classList.remove('hidden');aiTimeout=setTimeout(()=>generateAIDesc(),800);}
+function generateAIDesc(){
+ const title=document.getElementById('title').value.trim();
+ if(!title){document.getElementById('aiTyping').classList.add('hidden');return;}
+ const cat=document.getElementById('cat').value;
+ const cond=document.getElementById('cond').value;
+ const price=document.getElementById('price').value;
+ let desc='';
+ const low=title.toLowerCase();
+ if(low.includes('ايفون')||low.includes('iphone')){
+  desc=`📱 ${title} - ${cond}
+✅ الحالة: ${cond} - نظيف جدا
+✅ البطارية: 90%+
+✅ معه كرتونة وشاحن أصلي
+✅ مافي أي خدش
+✅ Face ID شغال
+💰 السعر: ${price}$ قابل للتفاوض البسيط
+📍 الموقع: ${document.getElementById('loc').value}
+💳 يقبل شام كاش
+📞 تواصل واتساب للجادين فقط`;
+ } else if(low.includes('سيارة')||cat==='سيارات'){
+  desc=`🚗 ${title} - ${cond}
+✅ الموديل: ${title}
+✅ الحالة الفنية: ممتازة - موتور وفتيس جديد
+✅ الدهان: ${cond}
+✅ الدواليب جديدة
+✅ معاينة في ${document.getElementById('loc').value}
+💰 السعر: ${price}$
+📄 الأوراق نظامية
+💳 شام كاش مقبول`;
+ } else if(cat==='عقارات'){
+  desc=`🏠 ${title}
+✅ المساحة: ممتازة - إطلالة حلوة
+✅ الطابق: مناسب
+✅ الخدمات: ماء + كهربا + نت
+✅ المنطقة: ${document.getElementById('loc').value} - هادئة وآمنة
+💰 السعر: ${price}$
+📄 طابو نظامي
+📞 للمعاينة تواصل`;
+ } else if(cat==='طاقة'){
+  desc=`☀️ ${title} - منظومة طاقة شمسية
+✅ الاستطاعة: ممتازة
+✅ البطاريات: جديدة
+✅ الانفرتر: أصلي
+✅ التركيب مجاني في ${document.getElementById('loc').value}
+💰 السعر: ${price}$ مع الضمان
+⚡ توفير فاتورة الكهرباء 100%`;
+ } else {
+  desc=`✨ ${title} - ${cond}
+✅ الحالة: ${cond}
+✅ النظافة: ممتازة
+✅ السبب للبيع: ${cond==='جديد'?'جديد بالكرتونة':'التجديد'}
+✅ الموقع: ${document.getElementById('loc').value}
+💰 السعر: ${price}$ قابل للتفاوض
+📞 تواصل واتساب - ${document.getElementById('name').value||''}
+💳 شام كاش متوفر`;
+ }
+ document.getElementById('desc').value=desc;
+ document.getElementById('aiTyping').classList.add('hidden');
+ document.getElementById('desc').classList.add('border-violet-300');
+ setTimeout(()=>document.getElementById('desc').classList.remove('border-violet-300'),1500);
 }
-btn.disabled=false;btn.textContent='نشر الآن ✅';
-if(error){alert('خطأ: '+error.message);return;}
-document.getElementById('modal').classList.add('hidden');ev.target.reset();tempImages=[];document.getElementById('preview').innerHTML='';document.getElementById('shamBox').classList.add('hidden');
-load();
+
+// 2. RATING SYSTEM
+function getRatings(phone){try{return JSON.parse(localStorage.getItem('ratings_'+phone)||'[]');}catch(e){return[];}}
+function getAvgRating(phone){const r=getRatings(phone);if(!r.length)return {avg:0,count:0};const avg=r.reduce((a,b)=>a+b.stars,0)/r.length;return {avg:Math.round(avg*10)/10,count:r.length,list:r};}
+function renderStars(avg){let s='';for(let i=1;i<=5;i++){s+=`<span class="${i<=Math.round(avg)?'star':'star-empty'}">★</span>`;}return s;}
+let pickedStars=0;
+function pickStar(n){pickedStars=n;document.querySelectorAll('#starPicker button').forEach((b,i)=>{b.textContent=i<n?'★':'☆';b.className=i<n?'text-3xl text-amber-400':'text-3xl text-zinc-300';});}
+function openRating(){if(!currentDetail)return;if(!currentUser){openAccount();return;}document.getElementById('ratingSellerName').textContent='تقييم '+currentDetail.name;pickedStars=0;document.getElementById('ratingComment').value='';document.querySelectorAll('#starPicker button').forEach(b=>{b.textContent='☆';b.className='text-3xl text-zinc-300';});document.getElementById('ratingModal').classList.remove('hidden');}
+function submitRating(){if(pickedStars===0){alert('اختار نجوم');return;}const r=getRatings(currentDetail.phone);r.push({stars:pickedStars,comment:document.getElementById('ratingComment').value,by:currentUser.name,date:new Date().toLocaleDateString('ar-SY')});localStorage.setItem('ratings_'+currentDetail.phone,JSON.stringify(r));document.getElementById('ratingModal').classList.add('hidden');loadSellerRating();alert('✅ شكرا لتقييمك!');}
+function loadSellerRating(){if(!currentDetail)return;const {avg,count,list}=getAvgRating(currentDetail.phone);document.getElementById('sellerStars').innerHTML=renderStars(avg);document.getElementById('sellerAvg').textContent=avg?avg:'';document.getElementById('sellerCount').textContent=count?`(${count})`:'';document.getElementById('ratingsList').innerHTML=list.slice(-3).reverse().map(x=>`<div class="bg-white border rounded-xl p-2.5"><div class="flex justify-between"><span class="font-bold text-">${x.by}</span><span class="text-">${'★'.repeat(x.stars)}</span></div><p class="text- mt-1">${x.comment||''}</p></div>`).join('')||'<p class="text- text-zinc-400">لا تقييمات بعد - كن أول من يقيّم</p>';}ack/60 text-white text- px-1.5 py-0.5 rounded-full">▶️ ${Math.floor(Math.random()*500)+50}</span>
+  </div>
+ `).join('');
+}
+
+async function load(){const {data}=await sb.from('listings').select('*').order('created_at',{ascending:false});all=data||[];render();}
+function render(){
+ const q=(document.getElementById('search').value||'').toLowerCase();
+ let f=all.filter(l=>{
+  const mq=!q||l.title.toLowerCase().includes(q);
+  const mc=!city||l.location===city;
+  let mcat=true;if(category){if(category==='نقدي')mcat=!l.sham_enabled||l.pay_cash!==false;else if(category==='شام كاش')mcat=l.sham_enabled;else mcat=l.category===category;}
+  return mq&&mc&&mcat;
+ });
+ document.getElementById('count').textContent=f.length+' إعلان';
+ const grid=document.getElementById('grid');
+ if(!f.length){grid.innerHTML='';document.getElementById('empty').classList.remove('hidden');return;}
+ document.getElementById('empty').classList.add('hidden');
+ grid.innerHTML=f.map(l=>{
+  const img=l.images&&l.images[0]?l.images[0]:'';
+  const payType=l.sham_enabled?'💳 شام كاش + 💵 نقدي':'💵 نقدي';
+  return `<div onclick="openDetail('${l.id}')" class="modern-card cursor-pointer">
+  <div class="relative h- bg-[#f8f8fb] overflow-hidden"><img src="${img||'https://via.placeholder.com/300?text=📦'}" class="w-full h-full object-cover"><span class="absolute top-2 left-2 text- bg-white/90 backdrop-blur px-2 py-1 rounded-full font-bold border">${payType}</span><span class="absolute top-2 right-2 w-8 h-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center">❤️</span></div>
+  <div class="p-3"><p class="font-black text-">${l.price?l.price+'$':''}</p><h3 class="text- font-bold truncate mt-1">${l.title}</h3><div class="flex justify-between mt-2 text- text-zinc-500"><span>📍 ${l.location||''}</span><span>${new Date(l.created_at).toLocaleDateString('ar-SY')}</span></div><div class="mt-2">${getBadge(l.phone)}</div></div>
+  </div>`;
+ }).join('');
+}
+function initMap(){if(map){setTimeout(()=>map.invalidateSize(),100);return;}map=L.map('map').setView([36.5,38],7);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);}
+
+function openDetail(id){
+ const l=all.find(x=>String(x.id)===String(id));if(!l)return;currentDetail=l;
+ document.getElementById('sheetTitle').textContent=l.title;
+ document.getElementById('sheetDesc').textContent=l.description||'';
+ document.getElementById('sheetMeta').innerHTML=`<span class="bg-[#f2f2f5] px-3 py-1.5 rounded-full text- font-bold">📍 ${l.location}</span><span class="bg-[#f2f2f5] px-3 py-1.5 rounded-full text- font-bold">${l.category}</span><span>${getBadge(l.phone)}</span>`;
+ document.getElementById('sheetPrice').textContent=l.price?l.price+' $':'';
+ document.getElementById('sheetImg').innerHTML=l.images&&l.images[0]?`<img src="${l.images[0]}" class="w-full h-full object-contain bg-white">`:`<div class="w-full h-full flex items-center justify-center text-6xl">📦</div>`;
+ document.getElementById('sellerName').textContent=l.name||'';document.getElementById('sellerAvatar').textContent=(l.name||'س')[0];
+ document.getElementById('cashLocation').textContent=l.location||'منبج';
+ const shamBox=document.getElementById('payShamBox');
+ const cashBox=document.getElementById('payCashBox');
+ if(l.sham_enabled||l.sham_wallet){document.getElementById('sheetWallet').textContent=l.sham_wallet||l.phone;document.getElementById('sheetQR').src=`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${l.sham_wallet||l.phone}`;setPay('cash');}else{setPay('cash');document.getElementById('paySham').classList.add('opacity-50');}
+ document.getElementById('sheetWA').href=`https://wa.me/${(l.phone||'').replace(/[^0-9]/g,'')}?text=مهتم`;
+ document.getElementById('sheetCall').href=`tel:${l.phone}`;
+ document.getElementById('detailSheet').classList.remove('hidden');
+ loadReplies(l.id);
+}
+function closeDetail(){document.getElementById('detailSheet').classList.add('hidden');}
+function setPay(type){
+ currentPay=type;
+ document.getElementById('payCash').className=type==='cash'?'pay-tab cash active flex-1':'pay-tab cash flex-1 bg-white border';
+ document.getElementById('paySham').className=type==='sham'?'pay-tab sham active flex-1':'pay-tab sham flex-1 bg-white border';
+ document.getElementById('payCashBox').classList.toggle('hidden',type!=='cash');
+ document.getElementById('payShamBox').classList.toggle('hidden',type!=='sham');
+}
+function copyWallet(){navigator.clipboard.writeText(document.getElementById('sheetWallet').textContent);const s=document.getElementById('purchaseStatus');s.textContent='✅ تم نسخ رقم المحفظة';s.className='mt-2 p-2 rounded-xl text- font-bold bg-emerald-50 text-emerald-700 border';s.classList.remove('hidden');}
+function confirmCash(){
+ if(!currentUser){openAccount();return;}
+ const orders=JSON.parse(localStorage.getItem('souq_orders')||'[]');
+ orders.push({id:Date.now(),title:currentDetail.title,price:currentDetail.price,type:'cash',location:currentDetail.location});
+ localStorage.setItem('souq_orders',JSON.stringify(orders));
+ alert('✅ تم طلب معاينة نقدية - تواصل مع البائع واتساب لتحديد الموعد في '+currentDetail.location);
+ window.open(`https://wa.me/${currentDetail.phone.replace(/[^0-9]/g,'')}?text=مرحبا، بدي عاين ${currentDetail.title} نقدا في ${currentDetail.location}`,'_blank');
+}
+function confirmSham(){
+ if(!currentUser){openAccount();return;}
+ const orders=JSON.parse(localStorage.getItem('souq_orders')||'[]');
+ orders.push({id:Date.now(),title:currentDetail.title,price:currentDetail.price,type:'sham'});
+ localStorage.setItem('souq_orders',JSON.stringify(orders));
+ document.getElementById('purchaseStatus').textContent='✅ تم تأكيد التحويل عبر شام كاش';document.getElementById('purchaseStatus').className='mt-2 p-2 rounded-xl text- font-bold bg-violet-50 text-violet-700 border';document.getElementById('purchaseStatus').classList.remove('hidden');
+ setTimeout(()=>window.open(`https://wa.me/${currentDetail.phone.replace(/[^0-9]/g,'')}?text=حولت ${currentDetail.price}$ شام كاش لـ ${currentDetail.title}`,'_blank'),600);
+}
+function openOrders(){if(!currentUser){openAccount();return;}const orders=JSON.parse(localStorage.getItem('souq_orders')||'[]');document.getElementById('ordersList').innerHTML=orders.length?orders.reverse().map(o=>`<div class="border rounded-2xl p-3 mb-2 bg-[#f8f8fb]"><b class="text-">${o.title}</b><p class="text-">${o.price}$ • ${o.type==='cash'?'💵 نقدي':'💳 شام كاش'}</p></div>`).join(''):'<p class="text-center py-8 text-xs">لا طلبات</p>';document.getElementById('ordersModal').classList.remove('hidden');}
+function loadReplies(id){const r=JSON.parse(localStorage.getItem('replies_'+id)||'[]');document.getElementById('repliesList').innerHTML=r.map(x=>`<div class="bg-[#f8f8fb] rounded-2xl p-3 text-"><b class="text-">${x.name}</b><div class="mt-1">${x.text}</div></div>`).join('')||'<p class="text- text-zinc-400">لا تعليقات</p>';}
+function addReply(){const t=document.getElementById('replyText').value.trim();if(!t)return;if(!currentUser){openAccount();return;}const r=JSON.parse(localStorage.getItem('replies_'+currentDetail.id)||'[]');r.push({name:currentUser.name,text:t});localStorage.setItem('replies_'+currentDetail.id,JSON.stringify(r));document.getElementById('replyText').value='';loadReplies(currentDetail.id);}
+function openAdd(){if(!currentUser){openAccount();return;}document.getElementById('addModal').classList.remove('hidden');}
+document.getElementById('images')?.addEventListener('change',e=>{tempImages=[];document.getElementById('preview').innerHTML='';[...e.target.files].slice(0,4).forEach(f=>{const r=new FileReader();r.onload=ev=>{tempImages.push(ev.target.result);document.getElementById('preview').innerHTML+=`<img src="${ev.target.result}" class="w-16 h-16 rounded-2xl object-cover border">`;};r.readAsDataURL(f);});});&error.message.includes('sham_enabled')){
+   const {sham_enabled,sham_wallet,...rest}=data;const r2=await sb.from('listings').insert([rest]);error=r2.error;
+  }
+  if(error)throw error;
+  document.getElementById('addModal').classList.add('hidden');ev.target.reset();tempImages=[];document.getElementById('preview').innerHTML='';alert('✅ تم النشر - الدفع: '+(payCash?'نقدي ':'')+(paySham?'شام كاش':''));
+  load();
+ }catch(e){alert('خطأ: '+e.message);}finally{btn.disabled=false;btn.textContent='نشر الآن 🚀';}
 }
 load();
 </script>
